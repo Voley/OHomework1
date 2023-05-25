@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class InputController : MonoBehaviour
+public class MoveInput : MonoBehaviour
 {
     public Action<Vector2> OnPlayerMovement;
     private const string HORIZONTAL_AXIS = "Horizontal";
@@ -17,7 +17,7 @@ public class InputController : MonoBehaviour
 
     private void Update()
     {
-        if (!(_gameManager.State == GameState.Playing)) return;
+        if (_gameManager.State != GameState.Playing) return;
 
         float input = Input.GetAxisRaw(HORIZONTAL_AXIS);
 

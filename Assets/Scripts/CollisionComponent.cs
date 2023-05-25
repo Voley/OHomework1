@@ -3,12 +3,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CollisionHandler : MonoBehaviour
+public class CollisionComponent : MonoBehaviour
 {
-    public Action OnPlayerCollidedWithObstacle;
+    public Action<Collision> OnCollisionEntered;
 
     public void OnCollisionEnter(Collision collision)
     {
-        OnPlayerCollidedWithObstacle?.Invoke();
+        OnCollisionEntered?.Invoke(collision);
     }
 }

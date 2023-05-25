@@ -1,32 +1,31 @@
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CountdownHandler : MonoBehaviour, IGameCountdownStartListener
+
+public class GameLauncher : MonoBehaviour
 {
-    public Action OnCountdownEnded;
+    public Action OnCountdownStarted;
     public Action<int> OnCountdownValueChanged;
+
+    private GameManager _gameManager;
 
     private float _value;
     private bool _started;
     private int _lastValue;
 
-    public void OnCountdownStarted()
-    {
-        StartCountdown(3);
-    }
-
     private void Awake()
     {
-        GameManager.Shared.AddListener(this);
+        _gameManager = GameManager.Shared;
     }
 
-    private void StartCountdown(float value)
+    public void LaunchGame()
     {
-        _value = value;
+        _value = 3.0f;
         _started = true;
-        _lastValue = (int)value;
+        _lastValue = (int)_value;
 
         OnCountdownValueChanged(_lastValue);
     }
@@ -43,9 +42,9 @@ public class CountdownHandler : MonoBehaviour, IGameCountdownStartListener
             OnCountdownValueChanged(_lastValue);
         }
 
-        if (_value <= 0 )
+        if (_value <= 0)
         {
-            OnCountdownEnded?.Invoke();
+            _gameManager.StartGame();
             _started = false;
         }
     }

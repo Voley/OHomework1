@@ -12,43 +12,16 @@ public enum GameState
     Ended
 }
 
-[RequireComponent(typeof(CountdownHandler))]
 public class GameManager : MonoBehaviour
 {
     public static GameManager Shared;
     public GameState State { get; private set; }
 
     private List<IGameListener> _listeners;
-    private CountdownHandler _countdownHandler;
-    private CollisionHandler _collisionHandler;
 
     public void AddListener(IGameListener listener)
     {
         _listeners.Add(listener);
-    }
-
-    public void StartCountdown()
-    {
-        foreach (var listener in _listeners)
-        {
-            if (listener is IGameCountdownStartListener startListener)
-            {
-                startListener.OnCountdownStarted();
-            }
-        }
-
-        State = GameState.Starting;
-    }
-
-    public void EndCountdown()
-    {
-        foreach (var listener in _listeners)
-        {
-            if (listener is IGameCountdownFinishedListener endListener)
-            {
-                endListener.OnCountdownFinished();
-            }
-        }
     }
 
     public void StartGame()
@@ -126,18 +99,6 @@ public class GameManager : MonoBehaviour
 
         _listeners = new List<IGameListener>();
 
-        _countdownHandler = GetComponent<CountdownHandler>();
-        _countdownHandler.OnCountdownEnded += StartGame;
-        _collisionHandler = FindObjectOfType<CollisionHandler>();
-
-        _collisionHandler.OnPlayerCollidedWithObstacle += EndGame;
-
         State = GameState.Loading;
-    }
-
-    private void OnDestroy()
-    {
-        _countdownHandler.OnCountdownEnded -= StartGame;
-        _collisionHandler.OnPlayerCollidedWithObstacle -= EndGame;
     }
 }

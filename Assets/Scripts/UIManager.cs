@@ -6,8 +6,8 @@ using UnityEngine;
 using UnityEngine.UI;
 
 
-[RequireComponent(typeof(CountdownHandler))]
-public class UIManager : MonoBehaviour, IGameStartListener, IGamePausedListener, IGameResumeListener, IGameCountdownStartListener, IGameFinishListener
+[RequireComponent(typeof(GameLauncher))]
+public class UIManager : MonoBehaviour, IGameStartListener, IGamePausedListener, IGameResumeListener, IGameFinishListener
 {
     [SerializeField] private TMP_Text _countdownLabel;
     [SerializeField] private Button _startButton;
@@ -15,7 +15,7 @@ public class UIManager : MonoBehaviour, IGameStartListener, IGamePausedListener,
 
     [SerializeField] private TMP_Text _pauseButtonText;
 
-    private CountdownHandler _countdownHandler;
+    private GameLauncher _gameLauncher;
     private GameManager _gameManager;
 
     private void Awake()
@@ -26,20 +26,21 @@ public class UIManager : MonoBehaviour, IGameStartListener, IGamePausedListener,
         _gameManager = GameManager.Shared;
         _gameManager.AddListener(this);
 
-        _countdownHandler = GetComponent<CountdownHandler>();
-        _countdownHandler.OnCountdownValueChanged += UpdateCountdownText;
+        _gameLauncher = GetComponent<GameLauncher>();
+        _gameLauncher.OnCountdownValueChanged += UpdateCountdownText;
+        _gameLauncher.OnCountdownStarted += OnCountdownStarted;
     }
 
     private void OnDestroy()
     {
         _startButton.onClick.RemoveListener(StartButtonPressed);
         _pauseButton.onClick.RemoveListener(PauseButtonPressed);
-        _countdownHandler.OnCountdownValueChanged -= UpdateCountdownText;
+        _gameLauncher.OnCountdownValueChanged -= UpdateCountdownText;
     }
 
     private void StartButtonPressed()
     {
-        _gameManager.StartCountdown();
+        _gameLauncher.LaunchGame();
     }
 
     private void PauseButtonPressed()
@@ -49,6 +50,7 @@ public class UIManager : MonoBehaviour, IGameStartListener, IGamePausedListener,
 
     private void UpdateCountdownText(int value)
     {
+        OnCountdownStarted();
         _countdownLabel.text = (value + 1).ToString();
     }
 
@@ -69,17 +71,17 @@ public class UIManager : MonoBehaviour, IGameStartListener, IGamePausedListener,
         _pauseButton.gameObject.SetActive(true);
     }
 
-    public void OnCountdownStarted()
-    {
-        _startButton.gameObject.SetActive(false);
-        _countdownLabel.gameObject.SetActive(true);
-        _pauseButton.gameObject.SetActive(false);
-    }
-
     public void OnGameFinished()
     {
         _countdownLabel.gameObject.SetActive(true);
         _countdownLabel.text = "Вы проиграли!";
+        _pauseButton.gameObject.SetActive(false);
+    }
+
+    private void OnCountdownStarted()
+    {
+        _startButton.gameObject.SetActive(false);
+        _countdownLabel.gameObject.SetActive(true);
         _pauseButton.gameObject.SetActive(false);
     }
 }
